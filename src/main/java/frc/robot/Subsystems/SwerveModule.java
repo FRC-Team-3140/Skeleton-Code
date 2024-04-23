@@ -35,7 +35,7 @@ public class SwerveModule extends SubsystemBase {
     public CANSparkMax driveMotor;
     public PIDController turnPID;
     public ProfiledPIDController drivePID;
-    public AnalogEncoder turnEncoder;
+    public AbsoluteEncoder turnEncoder;
     public RelativeEncoder driveEncoder;
 
     public double botMass = 24.4;
@@ -95,7 +95,7 @@ public class SwerveModule extends SubsystemBase {
     SlewRateLimiter accelerationLimiter = new SlewRateLimiter(30.0, -Constants.maxAcceleration, 0);
 
     public void setStates(SwerveModuleState state, boolean locked) {
-        state = SwerveModuleState.optimize(state, Rotation2d.fromDegrees(turnEncoder.getAbsolutePosition()));
+        state = SwerveModuleState.optimize(state, Rotation2d.fromDegrees(turnEncoder.getPos()));
         setAngle(state.angle.getDegrees());
         setDriveSpeed(accelerationLimiter.calculate(state.speedMetersPerSecond));
         NetworkTableInstance.getDefault().getTable("Speed").getEntry(moduleID).setDouble(state.speedMetersPerSecond);
@@ -103,7 +103,7 @@ public class SwerveModule extends SubsystemBase {
 
     public void setAngle(double angle) {
         turnPID.setSetpoint(angle);
-        turnMotor.set(-turnPID.calculate(turnEncoder.getAbsolutePosition()));
+        turnMotor.set(-turnPID.calculate(turnEncoder.getPos()));
     }
 
     public void setDriveSpeed(double velocity) {
@@ -121,7 +121,7 @@ public class SwerveModule extends SubsystemBase {
     }
 
     public SwerveModulePosition getSwerveModulePosition() {
-        double angle = turnEncoder.getAbsolutePosition();
+        double angle = turnEncoder.getPos();
         double distance = driveEncoder.getPosition();
         return new SwerveModulePosition(distance, new Rotation2d(3.14 * angle / 180));
     }
@@ -130,7 +130,7 @@ public class SwerveModule extends SubsystemBase {
         return this.driveEncoder;
     }
 
-    public AnalogEncoder getTurnEncoder() {
+    public AbsoluteEncoder getTurnEncoder() {
         return this.turnEncoder;
     }
 
@@ -140,6 +140,6 @@ public class SwerveModule extends SubsystemBase {
 
     public SwerveModuleState getState() {
         return new SwerveModuleState(driveEncoder.getVelocity(),
-                Rotation2d.fromDegrees(turnEncoder.getAbsolutePosition()));
+                Rotation2d.fromDegrees(turnEncoder.getPos()));
     }
 }

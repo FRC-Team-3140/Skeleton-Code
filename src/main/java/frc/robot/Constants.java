@@ -5,11 +5,10 @@ import edu.wpi.first.math.util.Units;
 //Measurements in meters
 public interface Constants {
     public static final double gearRatio = 6.12;
-    public static final int detectThreshold = 1000;
     public static final double botMass = 24.4;
-    public static final double wheelDiameter = .1016;//.1016;
-      
-    public static final double botLength = Units.inchesToMeters(29);
+    public static final double wheelDiameter = .1016;
+    public static final double botLength = .3302;
+    public static final double botWidth = .2794;
 
     // In meters per second, determined from the free speed of the bot via
     // SwerveDriveSpecialties

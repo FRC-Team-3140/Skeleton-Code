@@ -42,7 +42,7 @@ import frc.robot.Sensors.Camera;
 import frc.robot.Sensors.Camera.DistAmb;
 
 /** Represents a swerve drive style drivetrain. */
-public class SwerveDrive extends SubsystemBase {
+public class SwerveDrive extends SubsystemBase implements Constants{
 
   private static SwerveDrive instance = new SwerveDrive();
   ProfiledPIDController thetaController = new ProfiledPIDController(2, 0, .1, new Constraints(360, 720));
@@ -51,19 +51,19 @@ public class SwerveDrive extends SubsystemBase {
   public static AHRS gyro;
 
   private final Translation2d[] locations = {
-      new Translation2d(Constants.botLength, Constants.botLength),
-      new Translation2d(Constants.botLength, -Constants.botLength),
-      new Translation2d(-Constants.botLength, Constants.botLength),
-      new Translation2d(-Constants.botLength, -Constants.botLength)
+    new Translation2d(botLength, botWidth),
+    new Translation2d(botLength, -botWidth),
+    new Translation2d(-botLength, botWidth),
+    new Translation2d(-botLength, -botWidth)
   };
 
   SwerveModule[] modules = {
-      new SwerveModule("frontLeft", 3, 8, 7, 0.701239),
-      new SwerveModule("frontRight", 2, 6, 5, 0.707867),
-      new SwerveModule("backLeft", 0, 2, 1, 0.219279),
-      new SwerveModule("backRight", 1, 4, 3, 0.447409),
-
+    new SwerveModule("frontRight", 10, 1, 2, -49),
+    new SwerveModule("backRight", 11, 5, 6, -40),
+    new SwerveModule("frontLeft", 13, 3, 4,  128),
+    new SwerveModule("backLeft", 12, 7, 8, 115),
   };
+
   double odometryOffset = 0;
 
   private ChassisSpeeds botSpeeds = new ChassisSpeeds(0, 0, 0);
