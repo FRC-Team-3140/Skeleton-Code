@@ -52,12 +52,7 @@ public class SwerveModule extends SubsystemBase {
     private TrapezoidProfile.Constraints constraints = new TrapezoidProfile.Constraints(Constants.maxChassisSpeed,
             Constants.maxAcceleration);
 
-    // private State initialState = new TrapezoidProfile.State(0, 0);
-    // private TrapezoidProfile trapezoidProfile;
-
-    // Conversion Factor for the motor encoder output to wheel output
-    // (Circumference / Gear Ratio) * Inches to meters conversion
-
+   
     public SwerveModule(String moduleID, int analogID, int driveMotorID, int turnMotorID, double baseAngle) {
         this.moduleID = moduleID;
         this.baseAngle = baseAngle;
@@ -117,8 +112,7 @@ public class SwerveModule extends SubsystemBase {
         NetworkTableInstance.getDefault().getTable(moduleID).getEntry("Set Speed").setDouble(velocity);
         NetworkTableInstance.getDefault().getTable(moduleID).getEntry("Actual Speed")
                 .setDouble(driveEncoder.getVelocity());
-        // drivePID.calculate(driveEncoder.getVelocity())); ///drivePID added too much
-        // instability
+        
     }
 
     public void setTurnSpeed(double speed) {

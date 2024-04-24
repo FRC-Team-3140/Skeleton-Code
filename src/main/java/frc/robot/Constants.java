@@ -1,17 +1,14 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.util.Units;
 //Measurements in meters
 public interface Constants {
-    public static final double intakeVoltage = 7.5;
-    public static final double shooterVoltage = 9.6;
     public static final double gearRatio = 6.12;
     public static final int detectThreshold = 1000;
     public static final double botMass = 24.4;
     public static final double wheelDiameter = .1016;//.1016;
-    public static final double maxShootingDistance = 3.768725;
+      
     public static final double botLength = Units.inchesToMeters(29);
 
     // In meters per second, determined from the free speed of the bot via
@@ -25,11 +22,6 @@ public interface Constants {
     // the module from the center, divided by 2 pi to convert to radians
     public static final double maxChassisTurnSpeed = maxChassisSpeed / botRadius;
     public static final double encoderRotationToMeters = 2 * Math.PI * ((wheelDiameter / 2) / gearRatio) / 42;
-
-    public static final Translation2d blueSpeakerTranslation = new Translation2d(0, 216 * .0254);
-    public static final Translation2d redSpeakerTranslation = new Translation2d(16.4846, 216 * .0254);
-
-    public static final double topClimberPosition = 27.87;
 
     public static final double maxAmbiguity = 0.1; 
 }

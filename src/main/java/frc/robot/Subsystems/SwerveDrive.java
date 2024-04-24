@@ -4,7 +4,10 @@
 
 package frc.robot.Subsystems;
 
+import java.util.Optional;
+
 import org.littletonrobotics.junction.Logger;
+import org.photonvision.EstimatedRobotPose;
 
 import com.kauailabs.navx.frc.AHRS;
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -32,9 +35,11 @@ import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.sensors.Camera;
+import frc.robot.Sensors.Camera;
+import frc.robot.Sensors.Camera.DistAmb;
 
 /** Represents a swerve drive style drivetrain. */
 public class SwerveDrive extends SubsystemBase {
@@ -43,7 +48,6 @@ public class SwerveDrive extends SubsystemBase {
   ProfiledPIDController thetaController = new ProfiledPIDController(2, 0, .1, new Constraints(360, 720));
   SwerveModuleState[] swerveModuleStates = new SwerveModuleState[4];
   private final SwerveDrivePoseEstimator poseEstimator;
-  // private Camera camera = Camera.getInstance();
   public static AHRS gyro;
 
   private final Translation2d[] locations = {
@@ -117,12 +121,6 @@ public class SwerveDrive extends SubsystemBase {
     Logger.recordOutput("Odometry", poseEstimator.getEstimatedPosition());
   }
 
-  // var alliance = DriverStation.getAlliance();
-  // if (alliance.isPresent() && allowPathMirroring) {
-  // return alliance.get() == DriverStation.Alliance.Red;
-  // }
-  // return false;
-
   // WPILib
   StructArrayPublisher<SwerveModuleState> actualStates = NetworkTableInstance.getDefault()
       .getStructArrayTopic("Actual States", SwerveModuleState.struct).publish();
@@ -138,13 +136,6 @@ public class SwerveDrive extends SubsystemBase {
       states[i] = modules[i].getState();
     }
     updateOdometry();
-    // actualStates.set(swerveModuleStates);
-    // setStates.set(states);
-    // double visionStdDev = NetworkTableInstance.getDefault().getTable("VisionStdDev").getEntry("VisionstdDev")
-        // .getDouble(.02);
-    // poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(visionStdDev, visionStdDev, Units.degreesToRadians(30)));
-    // poseEstimator.addVisionMeasurement(camera.getEstimatedGlobalPose(),
-    // camera.getTimestamp());
     odometryStruct.set(getPose());
 
   }
@@ -183,18 +174,7 @@ public class SwerveDrive extends SubsystemBase {
     drive(xSpeed, ySpeed, angularSpeed, fieldRelative);
   }
 
-  public void driveRobotFacingSpeaker(double xSpeed, double ySpeed, boolean fieldRelative) {
-    Translation2d distanceFromSpeaker;
-    if (shouldFlipPath()) {
-      distanceFromSpeaker = getExpectedPose().getTranslation().minus(Constants.redSpeakerTranslation);
-    } else {
-      distanceFromSpeaker = getExpectedPose().getTranslation().minus(Constants.blueSpeakerTranslation);
-    }
-    double angle = Math.atan2(distanceFromSpeaker.getY(), distanceFromSpeaker.getX());
-
-    driveRobotAtAngle(xSpeed, ySpeed, angle, fieldRelative);
-  }
-
+  
   /** Updates the field relative position of the robot. */
   public void updateOdometry() {
     poseEstimator.update(
@@ -210,24 +190,21 @@ public class SwerveDrive extends SubsystemBase {
     // -- on
     // a real robot, this must be calculated based either on latency or timestamps.
 
-  //   try {
-  //     if (Camera.getInstance().getStatus()) {
-  //       Optional<EstimatedRobotPose> pose = Camera.getInstance().getEstimatedGlobalPose();
-  //       DistAmb reading = Camera.getInstance().getApriltagDistX();
-  //       if (pose.isPresent() && reading != null  
-  //       // && getPose().getTranslation().getDistance(Camera.getInstance().getEstimatedGlobalPose().get().estimatedPose.getTranslation().toTranslation2d()) < .5
-  //        ) {
+    try {
+      if (Camera.getInstance().getStatus()) {
+        Optional<EstimatedRobotPose> pose = Camera.getInstance().getEstimatedGlobalPose();
+        DistAmb reading = Camera.getInstance().getApriltagDistX();
+        if (pose.isPresent() && reading != null) {
 
-  //         poseEstimator.addVisionMeasurement(pose.get().estimatedPose.toPose2d(),
-  //             Timer.getFPGATimestamp()-.04);
-  //         // System.out.println("Target Detected");
-  //       } // else {
-  //         // poseEstimator.addVisionMeasurement(getPose(), Timer.getFPGATimestamp());
-  //         // }
-  //     }
-  //   } catch (Error test) {
-  //     System.err.println(test);
-  //   }
+          poseEstimator.addVisionMeasurement(pose.get().estimatedPose.toPose2d(),
+              Timer.getFPGATimestamp()-.04);
+          
+        } // else {
+          poseEstimator.addVisionMeasurement(getPose(), Timer.getFPGATimestamp());
+          }
+    } catch (Error test) {
+      System.err.println(test);
+    }
  }
 
   public SwerveModulePosition[] getModulePositions() {
@@ -263,21 +240,7 @@ public class SwerveDrive extends SubsystemBase {
         new Translation2d(botSpeeds.vxMetersPerSecond * .05, botSpeeds.vyMetersPerSecond * .05), new Rotation2d()));
   }
 
-  public double getExpectedDistanceFromSpeaker() {
-    // .05 is a placeholder timesteo, may be changed in the future
-    if (shouldFlipPath()) {
-      return Constants.redSpeakerTranslation.getDistance(getExpectedPose().getTranslation());
-    }
-    return Constants.blueSpeakerTranslation.getDistance(getExpectedPose().getTranslation());
-  }
-
-  public double getDistanceFromSpeaker() {
-    if (shouldFlipPath()) {
-      return Constants.redSpeakerTranslation.getDistance(getPose().getTranslation());
-    }
-    return Constants.blueSpeakerTranslation.getDistance(getPose().getTranslation());
-  }
-
+ 
   public static SwerveDrive getInstance() {
     if (instance == null) {
       instance = new SwerveDrive();
@@ -289,28 +252,7 @@ public class SwerveDrive extends SubsystemBase {
     poseEstimator.setVisionMeasurementStdDevs(VecBuilder.fill(deviation, deviation, Units.degreesToRadians(30)));
   }
 
-    private PIDController turnController = new PIDController(0.025, 0, 0.0025);
-
-    public void turnToAprilTag(int ID) {
-      // TODO: Potential null error unhandled here
-      // turnPID.enableContinuousInput(0, 360);
-      try {
-        double botAngle = getPose().getRotation().getDegrees();
-        double offsetAngle = Camera.getInstance().getDegToApriltag(ID);
-        double setpoint = 0;
-      if (botAngle - offsetAngle <= 0)
-        setpoint = botAngle + offsetAngle;
-      else
-        setpoint = botAngle - offsetAngle;
-
-    turnController.setSetpoint(setpoint);
-    drive(0, 0, turnController.calculate(botAngle), false);
-  
-    } catch (Exception e) {
-      System.err.println(e.getLocalizedMessage());
-    }
-      }
-
+ 
   public void resetGyro() {
     odometryOffset += gyro.getAngle();
     gyro.reset();
