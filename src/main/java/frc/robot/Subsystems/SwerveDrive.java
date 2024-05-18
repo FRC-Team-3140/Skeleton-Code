@@ -14,6 +14,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PIDConstants;
 import com.pathplanner.lib.util.ReplanningConfig;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.controller.PIDController;
@@ -32,14 +34,28 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructArrayPublisher;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.units.Distance;
+import edu.wpi.first.units.Measure;
+import edu.wpi.first.units.MutableMeasure;
+import edu.wpi.first.units.Velocity;
+import edu.wpi.first.units.Voltage;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
-import frc.robot.Sensors.Camera;
-import frc.robot.Sensors.Camera.DistAmb;
+
+import static edu.wpi.first.units.MutableMeasure.mutable;
+import static edu.wpi.first.units.Units.Meters;
+import static edu.wpi.first.units.Units.MetersPerSecond;
+import static edu.wpi.first.units.Units.Volts;
+// import frc.robot.Sensors.Camera;
+// import frc.robot.Sensors.Camera.DistAmb;
 
 /** Represents a swerve drive style drivetrain. */
 public class SwerveDrive extends SubsystemBase implements Constants{
@@ -51,18 +67,21 @@ public class SwerveDrive extends SubsystemBase implements Constants{
   public static AHRS gyro;
 
   private final Translation2d[] locations = {
-    new Translation2d(botLength, botWidth),
-    new Translation2d(botLength, -botWidth),
-    new Translation2d(-botLength, botWidth),
-    new Translation2d(-botLength, -botWidth)
+    new Translation2d(botLength, botWidth), //FL -> BR
+    new Translation2d(botLength, -botWidth), //FR -> BL
+    new Translation2d(-botLength, botWidth), //BL - > FR
+    new Translation2d(-botLength, -botWidth), // BR -> FL
   };
+ 
 
   SwerveModule[] modules = {
-    new SwerveModule("frontRight", 10, 1, 2, -49),
-    new SwerveModule("backRight", 11, 5, 6, -40),
-    new SwerveModule("frontLeft", 13, 3, 4,  128),
-    new SwerveModule("backLeft", 12, 7, 8, 115),
+    new SwerveModule("frontLeft", 13, 3, 4,  128+90),
+    new SwerveModule("frontRight", 10, 1, 2, -49+90),
+    new SwerveModule("backLeft", 12, 7, 8, 115 + 90 ),
+    new SwerveModule("backRight", 11, 5, 6, -40 + 90),
   };
+
+
 
   double odometryOffset = 0;
 
@@ -136,6 +155,8 @@ public class SwerveDrive extends SubsystemBase implements Constants{
       states[i] = modules[i].getState();
     }
     updateOdometry();
+    actualStates.set(swerveModuleStates);
+    setStates.set(states);
     odometryStruct.set(getPose());
 
   }
@@ -154,11 +175,11 @@ public class SwerveDrive extends SubsystemBase implements Constants{
     swerveModuleStates = kinematics.toSwerveModuleStates(
         ChassisSpeeds.discretize(
             fieldRelative
-                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, gyro.getRotation2d())
-                : new ChassisSpeeds(xSpeed, ySpeed, rot),
+                ? ChassisSpeeds.fromFieldRelativeSpeeds(xSpeed, ySpeed, rot, gyro.getRotation2d()):
+                 new ChassisSpeeds(xSpeed, ySpeed, rot),
             .02));
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, Constants.maxModuleSpeed);
-
+    
     for (int i = 0; i < 4; i++) {
       modules[i].setStates(swerveModuleStates[i], false);
     }
@@ -190,21 +211,21 @@ public class SwerveDrive extends SubsystemBase implements Constants{
     // -- on
     // a real robot, this must be calculated based either on latency or timestamps.
 
-    try {
-      if (Camera.getInstance().getStatus()) {
-        Optional<EstimatedRobotPose> pose = Camera.getInstance().getEstimatedGlobalPose();
-        DistAmb reading = Camera.getInstance().getApriltagDistX();
-        if (pose.isPresent() && reading != null) {
+    // try {
+    //   if (Camera.getInstance().getStatus()) {
+    //     Optional<EstimatedRobotPose> pose = Camera.getInstance().getEstimatedGlobalPose();
+    //     DistAmb reading = Camera.getInstance().getApriltagDistX();
+    //     if (pose.isPresent() && reading != null) {
 
-          poseEstimator.addVisionMeasurement(pose.get().estimatedPose.toPose2d(),
-              Timer.getFPGATimestamp()-.04);
+    //       poseEstimator.addVisionMeasurement(pose.get().estimatedPose.toPose2d(),
+    //           Timer.getFPGATimestamp()-.04);
           
-        } // else {
-          poseEstimator.addVisionMeasurement(getPose(), Timer.getFPGATimestamp());
-          }
-    } catch (Error test) {
-      System.err.println(test);
-    }
+    //     } // else {
+    //       poseEstimator.addVisionMeasurement(getPose(), Timer.getFPGATimestamp());
+    //       }
+    // } catch (Error test) {
+    //   System.err.println(test);
+    // }
  }
 
   public SwerveModulePosition[] getModulePositions() {
@@ -254,16 +275,14 @@ public class SwerveDrive extends SubsystemBase implements Constants{
 
  
   public void resetGyro() {
-    odometryOffset += gyro.getAngle();
     gyro.reset();
   }
 
   public double getGyroAngle() {
-    return gyro.getAngle();
+    return gyro.getAngle(); 
   }
 
   public void resetPose(Pose2d pose) {
     poseEstimator.resetPosition(gyro.getRotation2d(), getModulePositions(), pose);
   }
-
 }

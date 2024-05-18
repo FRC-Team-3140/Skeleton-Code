@@ -1,5 +1,5 @@
 package frc.robot.Libs;
-
+//This class will vary based on what kind of Encoder you are using. If you are using the thrifty bot encoders, you will use Analog Encoders Class
 import com.ctre.phoenix6.hardware.CANcoder;
 
 public class AbsoluteEncoder extends CANcoder {

@@ -4,11 +4,23 @@
 
 package frc.robot;
 
+import org.littletonrobotics.junction.LoggedRobot;
+
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.util.PixelFormat;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.ParallelRaceGroup;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import frc.robot.Subsystems.SwerveDrive;
 
-public class Robot extends TimedRobot {
+public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
@@ -54,19 +66,26 @@ public class Robot extends TimedRobot {
     }
   }
 
+  // public static UsbCamera usbCamera = new UsbCamera("Idk", 0);
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    // SmartDashboard.putBoolean("Camera", usbCamera.setVideoMode(PixelFormat.kMJPEG, 200, 200, 30));
+  }
 
   @Override
   public void teleopExit() {}
 
+
   @Override
   public void testInit() {
     CommandScheduler.getInstance().cancelAll();
+    
   }
 
   @Override
-  public void testPeriodic() {}
+  public void testPeriodic() {
+    
+  }
 
   @Override
   public void testExit() {}

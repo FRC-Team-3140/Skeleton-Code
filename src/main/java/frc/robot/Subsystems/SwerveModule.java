@@ -60,12 +60,14 @@ public class SwerveModule extends SubsystemBase {
         this.driveMotorID = driveMotorID;
 
         driveMotor = new CANSparkMax(driveMotorID, MotorType.kBrushless);
+        driveMotor.restoreFactoryDefaults();
         driveMotor.setIdleMode(IdleMode.kBrake);
         driveMotor.setInverted(false);
         driveMotor.setSmartCurrentLimit(40);
         driveMotor.burnFlash();
 
         turnMotor = new CANSparkMax(turnMotorID, MotorType.kBrushless);
+        turnMotor.restoreFactoryDefaults();
         turnMotor.setIdleMode(IdleMode.kBrake);
         turnMotor.setInverted(false);
         turnMotor.setSmartCurrentLimit(30);
