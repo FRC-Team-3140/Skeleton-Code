@@ -1,7 +1,6 @@
 
 package frc.robot.Commands;
 
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.RobotContainer;
 import frc.robot.Subsystems.SwerveDrive;
@@ -41,13 +40,17 @@ public class SwerveController extends Command {
     @Override
 
     public void execute() {
-        final var xSpeed = -RobotContainer.controller.getLeftY() * maxSpeed; // Calculate the x speed based on the
-                                                                             // joystick input
-        final var ySpeed = -RobotContainer.controller.getLeftX() * maxSpeed; // Calculate the y speed based on the
-                                                                             // joystick input
-        final var rot = -RobotContainer.controller.getRightX() * maxChassisTurnSpeed; // Calculate the rotation speed
-                                                                                      // based on the joystick input
-        swerveDrive.drive(xSpeed, ySpeed, rot, fieldRelative); // Drive the swerve drive
+        // Calculate the x speed based on the joystick input
+        final var xSpeed = -RobotContainer.controller.getLeftY() * maxSpeed; 
+        
+        // Calculate the y speed based on the joystick input
+        final var ySpeed = -RobotContainer.controller.getLeftX() * maxSpeed; 
+        
+        // Calculate the rotation speed based on the joystick input
+        final var rot = -RobotContainer.controller.getRightX() * maxChassisTurnSpeed; 
+        
+        // Drive the swerve drive
+        swerveDrive.drive(xSpeed, ySpeed, rot, fieldRelative); 
     }
 
     /**

@@ -1,14 +1,13 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.util.Units;
 //Measurements in meters
 public interface Constants {
     public static final double gearRatio = 6.12;
     public static final double botMass = 24.4;
     public static final double wheelDiameter = .1016;
-    public static final double botWidth = .2794; //27
-    public static final double botLength = .3302; //31
+    public static final double botWidth = .2794; // 27
+    public static final double botLength = .3302; // 31
 
     // In meters per second, determined from the free speed of the bot via
     // SwerveDriveSpecialties
@@ -22,5 +21,5 @@ public interface Constants {
     public static final double maxChassisTurnSpeed = maxChassisSpeed / botRadius;
     public static final double encoderRotationToMeters = 2 * Math.PI * ((wheelDiameter / 2) / gearRatio) / 42;
 
-    public static final double maxAmbiguity = 0.1; 
+    public static final double maxAmbiguity = 0.1;
 }
