@@ -49,10 +49,15 @@ public class SwerveDrive extends SubsystemBase implements Constants {
   };
 
   SwerveModule[] modules = {
+      // new SwerveModule("frontLeft", 13, 3, 4, 128 + 90),
+      // new SwerveModule("frontRight", 10, 1, 2, -49 + 90),
+      // new SwerveModule("backLeft", 12, 7, 8, 115 + 90),
+      // new SwerveModule("backRight", 11, 5, 6, -40 + 90),
+
       new SwerveModule("frontLeft", 13, 3, 4, 128 + 90),
-      new SwerveModule("frontRight", 10, 1, 2, -49 + 90),
-      new SwerveModule("backLeft", 12, 7, 8, 115 + 90),
-      new SwerveModule("backRight", 11, 5, 6, -40 + 90),
+      new SwerveModule("frontRight", 10, 7, 8, -49 + 90),
+      new SwerveModule("backLeft", 12, 1,   2, 115 + 90),
+      new SwerveModule("backRight", 11, 5, 6, -40 + 90)
   };
 
   double odometryOffset = 0;
