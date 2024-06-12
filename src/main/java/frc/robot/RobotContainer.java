@@ -34,6 +34,13 @@ public class RobotContainer implements Constants {
     new JoystickButton(controller, Button.kY.value).onTrue(new InstantCommand(() -> {
       swerve.resetGyro();
     }));
+    new JoystickButton(controller, Button.kX.value).onTrue(new InstantCommand(() -> {
+      SwerveController.fieldRelative = true;
+    }));
+    new JoystickButton(controller, Button.kA.value).onTrue(new InstantCommand(() -> {
+      SwerveController.fieldRelative = false;
+    }));
+    
 
     // new JoystickButton(controller2,
     // Button.kY.value).whileTrue(swerve.sysIdQuasistatic(Direction.kForward));
